@@ -1,6 +1,7 @@
 {
     "name": "mennen-online/shopware6-api-connector",
     "description": "A Shopware 6 API Connector for Laravel Applications",
+    "license": "GPL-3.0-or-later",
     "require": {
         "php": "^8.1",
         "illuminate/support": "^9.17",
