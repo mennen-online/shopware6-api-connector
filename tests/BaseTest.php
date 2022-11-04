@@ -16,9 +16,9 @@ class BaseTest extends TestCase
 
         $app->bootstrapWith([LoadEnvironmentVariables::class]);
 
-        $app['config']->set('shopware6.url', env('SW6_HOST'));
-        $app['config']->set('shopware6.client_id', env('SW6_CLIENT_ID'));
-        $app['config']->set('shopware6.client_secret', env('SW6_CLIENT_SECRET'));
+        $app['config']->set('shopware6.url', env('SW6_HOST', 'http://localhost'));
+        $app['config']->set('shopware6.client_id', env('SW6_CLIENT_ID', 'my-client-id'));
+        $app['config']->set('shopware6.client_secret', env('SW6_CLIENT_SECRET', 'my-client-secret'));
 
         parent::getEnvironmentSetUp($app);
     }

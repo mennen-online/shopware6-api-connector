@@ -24,12 +24,6 @@ class ConnectorTest extends BaseTest
         ]);
     }
 
-    protected function getEnvironmentSetUp($app) {
-        parent::getEnvironmentSetUp($app);
-
-        $app['config']->set('shopware6.url', 'http://localhost');
-    }
-
     /**
      * @test
      */

@@ -58,7 +58,7 @@ abstract class Shopware6ApiConnector
         protected string|null $client_secret = null
     ) {
         if($this->client === null) {
-            $baseUrl = $this->url ?? config('shopware6.url', 'http://localhost');
+            $baseUrl = $this->url ?? config('shopware6.url');
 
             $this->client = Http::baseUrl($baseUrl.'/api')
                 ->acceptJson();
