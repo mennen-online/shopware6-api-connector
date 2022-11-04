@@ -14,12 +14,6 @@ class AuthenticationEndpointTest extends BaseTest
 {
     protected function setUp(): void {
         parent::setUp();
-
-        /*Http::fake([
-            Endpoint::TOKEN_AUTH->value => Http::response([
-                ''
-            ])
-        ]);*/
     }
 
     /**
@@ -38,7 +32,7 @@ class AuthenticationEndpointTest extends BaseTest
     /**
      * @test
      */
-    public function it_receives_a_token_with_seconds_to_expire() {
+    public function it_receives_a_token_with_seconds_to_expire_and_its_type() {
         $instance = Shopware6ApiConnector::authentication();
 
         $response = $instance->oAuthToken();
