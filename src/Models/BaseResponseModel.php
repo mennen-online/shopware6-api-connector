@@ -64,4 +64,8 @@ class BaseResponseModel extends BaseModel
             $this->data = $object;
         }
     }
+
+    public function toJson(): string {
+        return json_encode($this->toArray());
+    }
 }

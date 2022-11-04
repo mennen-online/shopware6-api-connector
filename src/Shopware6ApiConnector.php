@@ -111,7 +111,7 @@ abstract class Shopware6ApiConnector
         return null;
     }
 
-    private function logger(PromiseInterface|Response $response): BaseResponseModel|AuthResponseModel {
+    private function logger(PromiseInterface|Response $response): BaseResponseModel|AuthResponseModel|null {
         $logData = [
             'status' => $response->status(),
             'response' => $response->object(),
@@ -121,6 +121,8 @@ abstract class Shopware6ApiConnector
             Log::info("Shopware 6 API Call OK", $logData);
         } else {
             Log::emergency("Shopware 6 API Call not OK", $logData);
+
+            return $this->auth ? new AuthResponseModel() : new BaseResponseModel(Model::EMPTY);
         }
 
         if($this->auth) {
@@ -154,6 +156,8 @@ abstract class Shopware6ApiConnector
     }
 
     protected function get(Endpoint $endpoint, string $id): BaseResponseModel {
+        $this->id = $id;
+
         return $this->logger(
             $this->client->get($this->buildUrl($endpoint, $id))
         );
