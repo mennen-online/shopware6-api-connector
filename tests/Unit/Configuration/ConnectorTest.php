@@ -24,12 +24,17 @@ class ConnectorTest extends BaseTest
         ]);
     }
 
+    protected function getEnvironmentSetUp($app) {
+        parent::getEnvironmentSetUp($app);
+
+        $app['config']->set('shopware6.url', 'http://localhost');
+    }
+
     /**
      * @test
      */
     public function it_accepts_constructor_shop_credentials_preferred() {
         $instance = Shopware6ApiConnector::authentication(
-            url: 'http://localhost',
             client_id: 'my-client_id',
             client_secret: 'my-client_secret'
         );
