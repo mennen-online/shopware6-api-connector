@@ -10,7 +10,7 @@ use Orchestra\Testbench\TestCase;
 
 class BaseTest extends TestCase
 {
-    protected string $testUrl = 'http://localhost';
+    protected string $testUrl = 'http://127.0.0.1';
 
     protected string $accessToken = 'my-access-token';
 
@@ -30,7 +30,7 @@ class BaseTest extends TestCase
         $app->bootstrapWith([LoadEnvironmentVariables::class]);
 
         $app['config']->set('shopware6', [
-            'url' => env('SW6_HOST', $this->testUrl),
+            'url' => env('SW6_HOST'),
             'client_id' => env('SW6_CLIENT_ID'),
             'client_secret' => env('SW6_CLIENT_SECRET')
         ]);
@@ -43,7 +43,7 @@ class BaseTest extends TestCase
     }
 
     public function fakeLoginResponse() {
-        Http::fakeSequence(config('shopware6.url', $this->testUrl))
+        Http::fakeSequence(config('shopware6.url'))
             ->pushResponse(Http::response([
                 'token_type' => 'Bearer',
                 'expires_in' => 600,
