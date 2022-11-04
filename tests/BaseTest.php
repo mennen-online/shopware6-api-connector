@@ -30,7 +30,7 @@ class BaseTest extends TestCase
         $app->bootstrapWith([LoadEnvironmentVariables::class]);
 
         $app['config']->set('shopware6', [
-            'url' => env('SW6_HOST'),
+            'url' => env('SW6_HOST', $this->testUrl),
             'client_id' => env('SW6_CLIENT_ID'),
             'client_secret' => env('SW6_CLIENT_SECRET')
         ]);
