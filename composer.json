@@ -1,0 +1,30 @@
+{
+    "name": "mennen-online/shopware6-api-connector",
+    "description": "A Shopware 6 API Connector for Laravel Applications",
+    "require": {
+        "php": "^8.1",
+        "illuminate/support": "^9.17",
+        "mennen-online/laravel-response-models": "^1.1",
+        "guzzlehttp/guzzle": "^7.4"
+    },
+
+    "require-dev": {
+        "orchestra/testbench": "^7.11",
+        "nunomaduro/collision": "^6.2",
+        "brianium/paratest": "^6.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "MennenOnline\\Shopware6Connector\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MennenOnline\\Shopware6Connector\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/testbench package:test",
+        "test-parallel": "vendor/bin/testbench package:test --parallel"
+    }
+}
