@@ -10,7 +10,7 @@ use Orchestra\Testbench\TestCase;
 
 class BaseTest extends TestCase
 {
-    protected string $testUrl = 'http://127.0.0.1';
+    protected string $testUrl = 'http://localhost';
 
     protected string $accessToken = 'my-access-token';
 
