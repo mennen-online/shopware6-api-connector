@@ -43,7 +43,7 @@ class BaseTest extends TestCase
     }
 
     public function fakeLoginResponse() {
-        Http::fakeSequence(config('shopware6.url'))
+        Http::fakeSequence(config('shopware6.url', $this->testUrl))
             ->pushResponse(Http::response([
                 'token_type' => 'Bearer',
                 'expires_in' => 600,
