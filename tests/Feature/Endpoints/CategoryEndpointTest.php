@@ -23,6 +23,8 @@ class CategoryEndpointTest extends BaseTest
      * @test
      */
     public function it_receives_an_instance_of_category_endpoint() {
+        $this->fakeLoginResponse();
+
         $instance = Shopware6ApiConnector::Category();
 
         $this->assertInstanceOf(CategoryEndpoint::class, $instance);
