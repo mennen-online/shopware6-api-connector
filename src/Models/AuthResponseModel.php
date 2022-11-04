@@ -1,6 +1,6 @@
 <?php
 
-namespace MennenOnline\Shopware6Connector\Models;
+namespace MennenOnline\Shopware6ApiConnector\Models;
 
 use MennenOnline\LaravelResponseModels\Models\BaseModel;
 

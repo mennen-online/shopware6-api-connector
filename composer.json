@@ -13,14 +13,21 @@
         "nunomaduro/collision": "^6.2",
         "brianium/paratest": "^6.6"
     },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MennenOnline\\Shopware6ApiConnector\\Shopware6ApiConnectorServiceProvider"
+            ]
+        }
+    },
     "autoload": {
         "psr-4": {
-            "MennenOnline\\Shopware6Connector\\": "src/"
+            "MennenOnline\\Shopware6ApiConnector\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "MennenOnline\\Shopware6Connector\\Tests\\": "tests/"
+            "MennenOnline\\Shopware6ApiConnector\\Tests\\": "tests/"
         }
     },
     "scripts": {

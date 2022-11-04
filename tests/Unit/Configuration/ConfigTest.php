@@ -1,8 +1,8 @@
 <?php
 
-namespace MennenOnline\Shopware6Connector\Tests\Configuration;
+namespace MennenOnline\Shopware6ApiConnector\Tests\Configuration;
 
-use MennenOnline\Shopware6Connector\Tests\BaseTest;
+use MennenOnline\Shopware6ApiConnector\Tests\BaseTest;
 
 class ConfigTest extends BaseTest
 {

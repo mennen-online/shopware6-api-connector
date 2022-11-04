@@ -1,6 +1,6 @@
 <?php
 
-namespace MennenOnline\Shopware6Connector\Tests;
+namespace MennenOnline\Shopware6ApiConnector\Tests;
 
 use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
 use Orchestra\Testbench\TestCase;

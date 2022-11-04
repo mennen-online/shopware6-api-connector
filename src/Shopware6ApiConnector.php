@@ -1,8 +1,8 @@
 <?php
 
-namespace MennenOnline\Shopware6Connector;
+namespace MennenOnline\Shopware6ApiConnector;
 
-use MennenOnline\Shopware6Connector\Enums\Model;
+use MennenOnline\Shopware6ApiConnector\Enums\Model;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
@@ -10,33 +10,41 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use MennenOnline\LaravelResponseModels\Models\BaseModel;
-use MennenOnline\Shopware6Connector\Endpoints\AuthenticationEndpoint;
-use MennenOnline\Shopware6Connector\Enums\Endpoint;
-use MennenOnline\Shopware6Connector\Exceptions\Shopware6EndpointNotFoundException;
-use MennenOnline\Shopware6Connector\Models\AuthResponseModel;
-use MennenOnline\Shopware6Connector\Models\BaseResponseModel;
+use MennenOnline\Shopware6ApiConnector\Endpoints\AuthenticationEndpoint;
+use MennenOnline\Shopware6ApiConnector\Enums\Endpoint;
+use MennenOnline\Shopware6ApiConnector\Exceptions\Shopware6EndpointNotFoundException;
+use MennenOnline\Shopware6ApiConnector\Models\AuthResponseModel;
+use MennenOnline\Shopware6ApiConnector\Models\BaseResponseModel;
 
 /**
  * @property PendingRequest $client
  * @property int|null $expires_in
  * @property string|null $token
+ * @property BaseModel|null $responseModel
+ * @property string|null $id
+ * @property bool $auth = false
+ * @property string|null $url
+ * @property string|null $client_id
+ * @property string|null $client_secret
  *
- * @method Shopware6ApiConnector authentication()
- * @method Shopware6ApiConnector category()
- * @method Shopware6ApiConnector customerGroup()
- * @method Shopware6ApiConnector media()
- * @method Shopware6ApiConnector product()
- * @method Shopware6ApiConnector propertyGroup()
- * @method Shopware6ApiConnector propertyGroupOption()
- * @method Shopware6ApiConnector tax()
- * @method Shopware6ApiConnector taxRule()
+ * @method Shopware6ApiConnector authentication(string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
+ * @method Shopware6ApiConnector category(string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
+ * @method Shopware6ApiConnector customerGroup(string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
+ * @method Shopware6ApiConnector media(string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
+ * @method Shopware6ApiConnector product(string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
+ * @method Shopware6ApiConnector propertyGroup(string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
+ * @method Shopware6ApiConnector propertyGroupOption(string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
+ * @method Shopware6ApiConnector tax(string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
+ * @method Shopware6ApiConnector taxRule(string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
  */
 
-class Shopware6ApiConnector
+abstract class Shopware6ApiConnector
 {
     protected const SHOPWARE6_CLIENT_ID = 'shopware6.client_id';
 
     protected const SHOPWARE6_CLIENT_SECRET = 'shopware6.client_secret';
+
+    protected const SHOPWARE6_ENDPOINT_FQDN = 'MennenOnline\\Shopware6ApiConnector\\Endpoints\\';
 
     public function __construct(
         protected PendingRequest|null $client = null,
@@ -44,10 +52,15 @@ class Shopware6ApiConnector
         protected string|null $token = null,
         protected BaseModel|null $responseModel = null,
         protected string|null $id = null,
-        protected bool $auth = false
+        protected bool $auth = false,
+        protected string|null $url = null,
+        protected string|null $client_id = null,
+        protected string|null $client_secret = null
     ) {
         if($this->client === null) {
-            $this->client = Http::baseUrl(config('shopware6.url').'/api')
+            $baseUrl = $this->url ?? config('shopware6.url');
+
+            $this->client = Http::baseUrl($baseUrl.'/api')
                 ->acceptJson();
 
             if($this->expires_in === null || !$this->validAuthExists()) {
@@ -62,6 +75,18 @@ class Shopware6ApiConnector
         }
     }
 
+    public function getExpiresIn(): int|null {
+        return $this->expires_in;
+    }
+
+    public function getToken(): string|null {
+        return $this->token;
+    }
+
+    public function getClient(): PendingRequest {
+        return $this->client;
+    }
+
     public function validAuthExists(): bool {
         if($this->expires_in === null) {
             return false;
@@ -71,18 +96,19 @@ class Shopware6ApiConnector
     }
 
     public function __call(string $name, array $arguments): Shopware6ApiConnector {
-        $className = 'MennenOnline\\Shopware6Connector\\Endpoints\\' . str($name)->camel()->ucfirst()->append('Endpoint')->toString();
-        if(class_exists($className)) {
-            return new $className($this->client, $this->expires_in, $this->token);
+        $instance = self::__callStatic($name, $arguments);
+        if(!$instance) {
+            throw new Shopware6EndpointNotFoundException("Shopware 6 Endpoint " . $name . " not available yet");
         }
-
-        throw new Shopware6EndpointNotFoundException("Shopware 6 Endpoint " . $name . " not available yet");
+        return new (get_class($instance)($this->client, $this->expires_in, $this->token));
     }
 
-    public static function __callStatic(string $name, array $arguments) {
-        $instance = new self;
-
-        return $instance->$name($arguments);
+    public static function __callStatic(string $name, array $arguments): Shopware6ApiConnector|null {
+        $className = self::SHOPWARE6_ENDPOINT_FQDN . str($name)->camel()->ucfirst()->append('Endpoint')->toString();
+        if(class_exists($className)) {
+            return new $className(...$arguments);
+        }
+        return null;
     }
 
     private function logger(PromiseInterface|Response $response): BaseResponseModel|AuthResponseModel {

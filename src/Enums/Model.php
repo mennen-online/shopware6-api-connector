@@ -1,6 +1,6 @@
 <?php
 
-namespace MennenOnline\Shopware6Connector\Enums;
+namespace MennenOnline\Shopware6ApiConnector\Enums;
 
 enum Model: string
 {

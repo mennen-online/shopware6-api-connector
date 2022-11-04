@@ -1,8 +1,8 @@
 <?php
 
-namespace MennenOnline\Shopware6Connector\Models;
+namespace MennenOnline\Shopware6ApiConnector\Models;
 
-use MennenOnline\Shopware6Connector\Enums\Model;
+use MennenOnline\Shopware6ApiConnector\Enums\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use MennenOnline\LaravelResponseModels\Models\BaseModel;

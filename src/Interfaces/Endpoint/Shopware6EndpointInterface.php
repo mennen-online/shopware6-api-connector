@@ -1,10 +1,10 @@
 <?php
 
-namespace MennenOnline\Shopware6Connector\Interfaces\Endpoint;
+namespace MennenOnline\Shopware6ApiConnector\Interfaces\Endpoint;
 
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Response;
-use MennenOnline\Shopware6Connector\Models\BaseResponseModel;
+use MennenOnline\Shopware6ApiConnector\Models\BaseResponseModel;
 
 interface Shopware6EndpointInterface
 {

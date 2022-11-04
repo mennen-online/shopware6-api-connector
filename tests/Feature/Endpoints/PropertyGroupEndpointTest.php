@@ -1,11 +1,11 @@
 <?php
 
-namespace MennenOnline\Shopware6Connector\Tests\Feature\Endpoints;
+namespace MennenOnline\Shopware6ApiConnector\Tests\Feature\Endpoints;
 
-use MennenOnline\Shopware6Connector\Endpoints\PropertyGroupEndpoint;
-use MennenOnline\Shopware6Connector\Models\BaseResponseModel;
-use MennenOnline\Shopware6Connector\Shopware6ApiConnector;
-use MennenOnline\Shopware6Connector\Tests\BaseTest;
+use MennenOnline\Shopware6ApiConnector\Endpoints\PropertyGroupEndpoint;
+use MennenOnline\Shopware6ApiConnector\Models\BaseResponseModel;
+use MennenOnline\Shopware6ApiConnector\Shopware6ApiConnector;
+use MennenOnline\Shopware6ApiConnector\Tests\BaseTest;
 
 class PropertyGroupEndpointTest extends BaseTest
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace MennenOnline\Shopware6Connector\Exceptions;
+namespace MennenOnline\Shopware6ApiConnector\Exceptions;
 
 use Exception;
 

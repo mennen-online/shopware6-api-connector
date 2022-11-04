@@ -1,13 +1,13 @@
 <?php
 
-namespace MennenOnline\Shopware6Connector\Endpoints;
+namespace MennenOnline\Shopware6ApiConnector\Endpoints;
 
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Response;
-use MennenOnline\Shopware6Connector\Interfaces\Endpoint\Shopware6EndpointInterface;
-use MennenOnline\Shopware6Connector\Enums\Endpoint;
-use MennenOnline\Shopware6Connector\Models\BaseResponseModel;
-use MennenOnline\Shopware6Connector\Shopware6ApiConnector;
+use MennenOnline\Shopware6ApiConnector\Interfaces\Endpoint\Shopware6EndpointInterface;
+use MennenOnline\Shopware6ApiConnector\Enums\Endpoint;
+use MennenOnline\Shopware6ApiConnector\Models\BaseResponseModel;
+use MennenOnline\Shopware6ApiConnector\Shopware6ApiConnector;
 
 class CustomerGroupEndpoint extends Shopware6ApiConnector implements Shopware6EndpointInterface
 {

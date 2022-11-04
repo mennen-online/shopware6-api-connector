@@ -1,14 +1,14 @@
 <?php
 
-namespace MennenOnline\Shopware6Connector\Tests\Feature\Endpoints;
+namespace MennenOnline\Shopware6ApiConnector\Tests\Feature\Endpoints;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
-use MennenOnline\Shopware6Connector\Endpoints\AuthenticationEndpoint;
-use MennenOnline\Shopware6Connector\Enums\Endpoint;
-use MennenOnline\Shopware6Connector\Models\AuthResponseModel;
-use MennenOnline\Shopware6Connector\Shopware6ApiConnector;
-use MennenOnline\Shopware6Connector\Tests\BaseTest;
+use MennenOnline\Shopware6ApiConnector\Endpoints\AuthenticationEndpoint;
+use MennenOnline\Shopware6ApiConnector\Enums\Endpoint;
+use MennenOnline\Shopware6ApiConnector\Models\AuthResponseModel;
+use MennenOnline\Shopware6ApiConnector\Shopware6ApiConnector;
+use MennenOnline\Shopware6ApiConnector\Tests\BaseTest;
 
 class AuthenticationEndpointTest extends BaseTest
 {
