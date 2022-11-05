@@ -119,7 +119,9 @@ abstract class Shopware6ApiConnector
         ];
 
         if($response->successful()) {
-            Log::info("Shopware 6 API Call OK", $logData);
+            if(config('app.debug')) {
+                Log::info("Shopware 6 API Call OK", $logData);
+            }
         } else {
             Log::emergency("Shopware 6 API Call not OK", $logData);
 
