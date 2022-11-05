@@ -152,7 +152,7 @@ abstract class Shopware6ApiConnector
 
     protected function index(Endpoint $endpoint, int $limit = null): BaseResponseModel {
         if($limit === null) {
-            $limit = $this->client->get(str($this->buildUrl($endpoint))->append('?' . Arr::query(['limit' => 1]))->toString())->object()->total;
+            $limit = $this->client->get(str($this->buildUrl($endpoint))->append('?' . Arr::query(['limit' => $limit]))->toString())->object()->total;
         }
         return $this->logger(
             $this->client->get(str($this->buildUrl($endpoint))->append('?' . Arr::query(['limit' => $limit]))->toString())
