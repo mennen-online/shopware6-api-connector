@@ -11,8 +11,8 @@ use MennenOnline\Shopware6ApiConnector\Shopware6ApiConnector;
 
 class CategoryEndpoint extends Shopware6ApiConnector implements Shopware6EndpointInterface
 {
-    public function getAll(): BaseResponseModel {
-        return $this->index(Endpoint::CATEGORY);
+    public function getAll(int|null $limit = null): BaseResponseModel {
+        return $this->index(Endpoint::CATEGORY, $limit);
     }
 
     public function getSingle(string $id): BaseResponseModel {

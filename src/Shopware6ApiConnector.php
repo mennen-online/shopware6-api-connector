@@ -2,6 +2,7 @@
 
 namespace MennenOnline\Shopware6ApiConnector;
 
+use Illuminate\Support\Arr;
 use MennenOnline\Shopware6ApiConnector\Enums\Model;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\PendingRequest;
@@ -27,15 +28,15 @@ use MennenOnline\Shopware6ApiConnector\Models\BaseResponseModel;
  * @property string|null $client_id
  * @property string|null $client_secret
  *
- * @method Shopware6ApiConnector authentication(string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
- * @method Shopware6ApiConnector category(string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
- * @method Shopware6ApiConnector customerGroup(string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
- * @method Shopware6ApiConnector media(string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
- * @method Shopware6ApiConnector product(string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
- * @method Shopware6ApiConnector propertyGroup(string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
- * @method Shopware6ApiConnector propertyGroupOption(string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
- * @method Shopware6ApiConnector tax(string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
- * @method Shopware6ApiConnector taxRule(string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
+ * @method Shopware6ApiConnector authentication(Shopware6ApiConnector|null $client = null, string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
+ * @method Shopware6ApiConnector category(Shopware6ApiConnector|null $client = null, string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
+ * @method Shopware6ApiConnector customerGroup(Shopware6ApiConnector|null $client = null, string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
+ * @method Shopware6ApiConnector media(Shopware6ApiConnector|null $client = null, string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
+ * @method Shopware6ApiConnector product(Shopware6ApiConnector|null $client = null, string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
+ * @method Shopware6ApiConnector propertyGroup(Shopware6ApiConnector|null $client = null, string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
+ * @method Shopware6ApiConnector propertyGroupOption(Shopware6ApiConnector|null $client = null, string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
+ * @method Shopware6ApiConnector tax(Shopware6ApiConnector|null $client = null, string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
+ * @method Shopware6ApiConnector taxRule(Shopware6ApiConnector|null $client = null, string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
  */
 
 abstract class Shopware6ApiConnector
@@ -64,7 +65,7 @@ abstract class Shopware6ApiConnector
                 ->acceptJson();
 
             if($this->expires_in === null || !$this->validAuthExists()) {
-                $loginResponse = (new AuthenticationEndpoint($this->client))->oAuthToken();
+                $loginResponse = (new AuthenticationEndpoint($this->client, client_id: $this->client_id, client_secret: $this->client_secret))->oAuthToken();
 
                 $this->expires_in = $loginResponse->expires_in;
 
@@ -149,9 +150,12 @@ abstract class Shopware6ApiConnector
         return $string->append('/'.$id)->toString();
     }
 
-    protected function index(Endpoint $endpoint): BaseResponseModel {
+    protected function index(Endpoint $endpoint, int $limit = null): BaseResponseModel {
+        if($limit === null) {
+            $limit = $this->client->get(str($this->buildUrl($endpoint))->append('?' . Arr::query(['limit' => 1]))->toString())->object()->total;
+        }
         return $this->logger(
-            $this->client->get($this->buildUrl($endpoint))
+            $this->client->get(str($this->buildUrl($endpoint))->append('?' . Arr::query(['limit' => $limit]))->toString())
         );
     }
 

@@ -12,8 +12,8 @@ use MennenOnline\Shopware6ApiConnector\Shopware6ApiConnector;
 class TaxEndpoint extends Shopware6ApiConnector implements Shopware6EndpointInterface
 {
 
-    public function getAll(): BaseResponseModel {
-        return $this->index(Endpoint::TAX);
+    public function getAll(int|null $limit = null): BaseResponseModel {
+        return $this->index(Endpoint::TAX, $limit);
     }
 
     public function getSingle(string $id): BaseResponseModel {

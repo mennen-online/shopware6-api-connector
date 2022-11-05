@@ -8,7 +8,7 @@ use MennenOnline\Shopware6ApiConnector\Models\BaseResponseModel;
 
 interface Shopware6EndpointInterface
 {
-    public function getAll(): BaseResponseModel;
+    public function getAll(int|null $limit = null): BaseResponseModel;
 
     public function getSingle(string $id): BaseResponseModel;
 
