@@ -20,7 +20,7 @@ class AuthenticationEndpoint extends Shopware6ApiConnector implements Shopware6A
     public function oAuthToken(): AuthResponseModel {
         $this->auth = true;
 
-        return $this->post(Endpoint::TOKEN_AUTH, [
+        return $this->post(Endpoint::OAUTH_TOKEN, [
             'grant_type' => 'client_credentials',
             'client_id' => $this->client_id ?? config(self::SHOPWARE6_CLIENT_ID),
             'client_secret' => $this->client_secret ?? config(self::SHOPWARE6_CLIENT_SECRET)

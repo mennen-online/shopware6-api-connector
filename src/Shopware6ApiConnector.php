@@ -141,7 +141,7 @@ abstract class Shopware6ApiConnector
     }
 
     private function buildUrl(Endpoint $endpoint, int|string|null $id = null): string {
-        $string = str($endpoint->value);
+        $string = str(Endpoint::convertEndpointToUrl($endpoint));
 
         $this->id = $id;
 
