@@ -17,6 +17,7 @@ use MennenOnline\Shopware6ApiConnector\Exceptions\Shopware6EndpointNotFoundExcep
 use MennenOnline\Shopware6ApiConnector\Endpoints\Endpoint;
 use MennenOnline\Shopware6ApiConnector\Models\AuthResponseModel;
 use MennenOnline\Shopware6ApiConnector\Models\BaseResponseModel;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @property PendingRequest $client
@@ -139,7 +140,10 @@ abstract class Shopware6ApiConnector
         } else {
             Log::emergency("Shopware 6 API Call not OK", $logData);
 
-            return $this->auth ? new AuthResponseModel() : new BaseResponseModel(Model::EMPTY);
+            return match($response->status()) {
+                404 => throw new NotFoundHttpException("The requested URL cannot be found"),
+                default => $this->auth ? new AuthResponseModel() : new BaseResponseModel(Model::EMPTY)
+            };
         }
 
         if($this->auth) {
