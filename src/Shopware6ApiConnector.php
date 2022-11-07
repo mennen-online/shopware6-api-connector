@@ -167,6 +167,8 @@ abstract class Shopware6ApiConnector
     }
 
     protected function index(EndpointEnum $endpoint, int $limit = null): BaseResponseModel {
+        $this->auth = false;
+
         if($limit === null) {
             $limit = $this->client->get(str($this->buildUrl($endpoint))->append('?' . Arr::query(['limit' => $limit]))->toString())->object()->total;
         }
@@ -176,6 +178,8 @@ abstract class Shopware6ApiConnector
     }
 
     protected function get(EndpointEnum $endpoint, string $id): BaseResponseModel {
+        $this->auth = false;
+
         $this->id = $id;
 
         return $this->logger(
