@@ -4,7 +4,7 @@ namespace MennenOnline\Shopware6ApiConnector\Tests;
 
 use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
 use Illuminate\Support\Facades\Http;
-use MennenOnline\Shopware6ApiConnector\Enums\Endpoint;
+use MennenOnline\Shopware6ApiConnector\Enums\EndpointEnum;
 use MennenOnline\Shopware6ApiConnector\Shopware6ApiConnectorServiceProvider;
 use Orchestra\Testbench\TestCase;
 

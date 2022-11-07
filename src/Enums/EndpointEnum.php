@@ -2,7 +2,7 @@
 
 namespace MennenOnline\Shopware6ApiConnector\Enums;
 
-enum Endpoint
+enum EndpointEnum
 {
     case ACL_ROLE;
 
@@ -314,7 +314,7 @@ enum Endpoint
 
     case WEBHOOK_EVENT_LOG;
 
-    public static function convertEndpointToUrl(Endpoint $endpoint): string {
+    public static function convertEndpointToUrl(EndpointEnum $endpoint): string {
         $url = str($endpoint->name);
 
         if($url->contains('TOKEN')) {
