@@ -21,7 +21,13 @@ class AuthenticationEndpointTest extends BaseTest
      * @test
      */
     public function it_returns_an_instance_of_authentication_endpoint() {
-        $this->fakeLoginResponse();
+        Http::fake([
+            '*/' . EndpointEnum::convertEndpointToUrl(EndpointEnum::OAUTH_TOKEN) => Http::response([
+                'token_type' => 'Bearer',
+                'expires_in' => 600,
+                'access_token' => 'my-access-token'
+            ])
+        ]);
 
         $instance = new Endpoint();
 

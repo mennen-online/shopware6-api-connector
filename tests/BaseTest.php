@@ -41,18 +41,4 @@ class BaseTest extends TestCase
             Shopware6ApiConnectorServiceProvider::class
         ];
     }
-
-    public function fakeLoginResponse() {
-        Http::fakeSequence(config('shopware6.url'))
-            ->pushResponse(Http::response([
-                'token_type' => 'Bearer',
-                'expires_in' => 600,
-                'access_token' => 'my-access-token'
-            ]))
-            ->pushResponse(Http::response([
-                'token_type' => 'Bearer',
-                'expires_in' => 600,
-                'access_token' => 'my-access-token'
-            ]));
-    }
 }

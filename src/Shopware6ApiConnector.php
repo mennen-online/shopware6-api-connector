@@ -2,6 +2,8 @@
 
 namespace MennenOnline\Shopware6ApiConnector;
 
+use ErrorException;
+use Exception;
 use Illuminate\Support\Arr;
 use MennenOnline\Shopware6ApiConnector\Enums\Model;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -174,7 +176,15 @@ abstract class Shopware6ApiConnector
         $this->auth = false;
 
         if($limit === null) {
-            $limit = $this->client->get(str($this->buildUrl($endpoint))->append('?' . Arr::query(['limit' => $limit]))->toString())->object()->total;
+            $limitRequest = $this->client->get(str($this->buildUrl($endpoint))->append('?'.Arr::query(['limit' => $limit]))->toString());
+
+            $limitResponse = $limitRequest->object();
+
+            if(!property_exists($limitResponse, 'total')) {
+                dd($endpoint, $limitResponse, $limitRequest);
+            }
+
+            $limit = $limitResponse?->total;
         }
         return $this->logger(
             $this->client->get(str($this->buildUrl($endpoint))->append('?' . Arr::query(['limit' => $limit]))->toString())
