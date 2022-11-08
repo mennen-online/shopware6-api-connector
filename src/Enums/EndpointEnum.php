@@ -1,48 +1,9 @@
-# Shopware6 API Connector
+<?php
 
-## Description
+namespace MennenOnline\Shopware6ApiConnector\Enums;
 
-A Connector for Shopware 6 API in Laravel Applications.
-
-All Endpoints from Shopware 6 Admin API are available as Enum, which is needed to Initialize the Connector
-
-## Installation
-
-Install it through composer:
-
-```
-composer require mennen-online/shopware6-api-connector
-```
-
-Run:
-```
-php artisan vendor:publish --provider=Shopware6ApiConnectorServiceProvider
-```
-
-To connect a single Shop, add to your .env the following Keys:
-```
-SW6_HOST=<URL TO SHOP>
-SW6_CLIENT_ID=<CLIENT ID>
-SW6_CLIENT_SECRET=<CLIENT SECRET>
-```
-
-It is also Possible to call the connector with following scheme e.g. authentication:
-
-```php
-use MennenOnline\Shopware6ApiConnector\Endpoints\Endpoint;
-use MennenOnline\Shopware6ApiConnector\Enums\EndpointEnum;
-
-$instance = new Endpoint(
-    url: 'http://your-shop.url',
-    client_id: 'your-client-id',
-    client_secret: 'your-client-secret',
-    endpoint: EndpointEnum::CURRENCY
-);
-```
-
-## Endpoints
-
-```php
+enum EndpointEnum
+{
     case ACL_ROLE;
 
     case ACL_USER_ROLE;
@@ -352,4 +313,16 @@ $instance = new Endpoint(
     case WEBHOOK;
 
     case WEBHOOK_EVENT_LOG;
-```
+
+    public static function convertEndpointToUrl(EndpointEnum $endpoint): string {
+        $url = str($endpoint->name);
+
+        if($url->contains('TOKEN')) {
+            $url = $url->replace('_', '/');
+        } else {
+            $url = $url->replace('_', '-');
+        }
+
+        return $url->lower()->snake()->toString();
+    }
+}

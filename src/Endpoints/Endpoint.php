@@ -2,22 +2,20 @@
 
 namespace MennenOnline\Shopware6ApiConnector\Endpoints;
 
-use GuzzleHttp\Promise\PromiseInterface;
-use Illuminate\Http\Client\Response;
-use MennenOnline\Shopware6ApiConnector\Enums\Endpoint;
+use MennenOnline\Shopware6ApiConnector\Enums\EndpointEnum;
 use MennenOnline\Shopware6ApiConnector\Interfaces\Endpoint\Shopware6EndpointInterface;
 use MennenOnline\Shopware6ApiConnector\Models\BaseResponseModel;
 use MennenOnline\Shopware6ApiConnector\Shopware6ApiConnector;
 
-class MediaEndpoint extends Shopware6ApiConnector implements Shopware6EndpointInterface
+class Endpoint extends Shopware6ApiConnector
 {
 
-    public function getAll(int|null $limit = null): BaseResponseModel {
-        return $this->index(Endpoint::MEDIA, $limit);
+    public function getAll(?int $limit = null): BaseResponseModel {
+        return $this->index($this->endpoint, $limit);
     }
 
     public function getSingle(string $id): BaseResponseModel {
-        return $this->get(Endpoint::MEDIA, $id);
+        return $this->get($this->endpoint, $id);
     }
 
     public function create(array $data = []): BaseResponseModel {

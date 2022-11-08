@@ -23,8 +23,12 @@ class BaseResponseModel extends BaseModel
         'errors'
     ];
 
-    public function __construct(Model $model, array|object $attributes = [], string|null $mapClassForData = null) {
+    public function __construct(Model $model, array|object|null $attributes = [], string|null $mapClassForData = null) {
         parent::__construct($attributes);
+
+        if(!$attributes) {
+            return $this;
+        }
 
         $attributes = (array)$attributes;
 

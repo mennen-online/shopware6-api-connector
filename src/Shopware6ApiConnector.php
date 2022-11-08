@@ -2,6 +2,8 @@
 
 namespace MennenOnline\Shopware6ApiConnector;
 
+use ErrorException;
+use Exception;
 use Illuminate\Support\Arr;
 use MennenOnline\Shopware6ApiConnector\Enums\Model;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -12,10 +14,12 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use MennenOnline\LaravelResponseModels\Models\BaseModel;
 use MennenOnline\Shopware6ApiConnector\Endpoints\AuthenticationEndpoint;
-use MennenOnline\Shopware6ApiConnector\Enums\Endpoint;
+use MennenOnline\Shopware6ApiConnector\Enums\EndpointEnum;
 use MennenOnline\Shopware6ApiConnector\Exceptions\Shopware6EndpointNotFoundException;
+use MennenOnline\Shopware6ApiConnector\Endpoints\Endpoint;
 use MennenOnline\Shopware6ApiConnector\Models\AuthResponseModel;
 use MennenOnline\Shopware6ApiConnector\Models\BaseResponseModel;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @property PendingRequest $client
@@ -27,8 +31,8 @@ use MennenOnline\Shopware6ApiConnector\Models\BaseResponseModel;
  * @property string|null $url
  * @property string|null $client_id
  * @property string|null $client_secret
+ * @property EndpointEnum|null $endpoint
  *
- * @method Shopware6ApiConnector authentication(Shopware6ApiConnector|null $client = null, string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
  * @method Shopware6ApiConnector category(Shopware6ApiConnector|null $client = null, string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
  * @method Shopware6ApiConnector customerGroup(Shopware6ApiConnector|null $client = null, string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
  * @method Shopware6ApiConnector media(Shopware6ApiConnector|null $client = null, string|null $url = null, string|null $client_id = null, string|null $client_secret = null)
@@ -45,8 +49,6 @@ abstract class Shopware6ApiConnector
 
     protected const SHOPWARE6_CLIENT_SECRET = 'shopware6.client_secret';
 
-    protected const SHOPWARE6_ENDPOINT_FQDN = 'MennenOnline\\Shopware6ApiConnector\\Endpoints\\';
-
     public function __construct(
         protected PendingRequest|null $client = null,
         protected int|null $expires_in = null,
@@ -56,7 +58,8 @@ abstract class Shopware6ApiConnector
         protected bool $auth = false,
         protected string|null $url = null,
         protected string|null $client_id = null,
-        protected string|null $client_secret = null
+        protected string|null $client_secret = null,
+        protected EndpointEnum|null $endpoint = null,
     ) {
         if($this->client === null) {
             $baseUrl = $this->url ?? config('shopware6.url');
@@ -65,7 +68,7 @@ abstract class Shopware6ApiConnector
                 ->acceptJson();
 
             if($this->expires_in === null || !$this->validAuthExists()) {
-                $loginResponse = (new AuthenticationEndpoint($this->client, client_id: $this->client_id, client_secret: $this->client_secret))->oAuthToken();
+                $loginResponse = $this->oAuthToken();
 
                 $this->expires_in = $loginResponse->expires_in;
 
@@ -74,6 +77,16 @@ abstract class Shopware6ApiConnector
                 $this->client->withToken($this->token);
             }
         }
+    }
+
+    private function oAuthToken(): AuthResponseModel {
+        $this->auth = true;
+
+        return $this->post(EndpointEnum::OAUTH_TOKEN, [
+            'grant_type' => 'client_credentials',
+            'client_id' => $this->client_id ?? config(self::SHOPWARE6_CLIENT_ID),
+            'client_secret' => $this->client_secret ?? config(self::SHOPWARE6_CLIENT_SECRET)
+        ]);
     }
 
     public function getExpiresIn(): int|null {
@@ -96,7 +109,10 @@ abstract class Shopware6ApiConnector
         return Carbon::now()->isAfter(Carbon::now()->subSeconds($this->expires_in));
     }
 
-    public function __call(string $name, array $arguments): Shopware6ApiConnector {
+    public function __call(string $name, array $arguments): Shopware6ApiConnector|AuthResponseModel|BaseResponseModel {
+        if(method_exists($this, $name)) {
+            return $this->$name($arguments);
+        }
         $instance = self::__callStatic($name, $arguments);
         if(!$instance) {
             throw new Shopware6EndpointNotFoundException("Shopware 6 Endpoint " . $name . " not available yet");
@@ -105,11 +121,12 @@ abstract class Shopware6ApiConnector
     }
 
     public static function __callStatic(string $name, array $arguments): Shopware6ApiConnector|null {
-        $className = self::SHOPWARE6_ENDPOINT_FQDN . str($name)->camel()->ucfirst()->append('Endpoint')->toString();
-        if(class_exists($className)) {
-            return new $className(...$arguments);
-        }
-        return null;
+        return new Endpoint(
+            client       : Arr::get($arguments, 'client'),
+            client_id    : Arr::get($arguments, 'client_id'),
+            client_secret: Arr::get($arguments, 'client_secret'),
+            endpoint     : $name
+        );
     }
 
     private function logger(PromiseInterface|Response $response): BaseResponseModel|AuthResponseModel|null {
@@ -125,7 +142,10 @@ abstract class Shopware6ApiConnector
         } else {
             Log::emergency("Shopware 6 API Call not OK", $logData);
 
-            return $this->auth ? new AuthResponseModel() : new BaseResponseModel(Model::EMPTY);
+            return match($response->status()) {
+                404 => throw new NotFoundHttpException("The requested URL cannot be found"),
+                default => $this->auth ? new AuthResponseModel() : new BaseResponseModel(Model::EMPTY)
+            };
         }
 
         if($this->auth) {
@@ -140,8 +160,8 @@ abstract class Shopware6ApiConnector
         );
     }
 
-    private function buildUrl(Endpoint $endpoint, int|string|null $id = null): string {
-        $string = str($endpoint->value);
+    private function buildUrl(EndpointEnum $endpoint, int|string|null $id = null): string {
+        $string = str(EndpointEnum::convertEndpointToUrl($endpoint));
 
         $this->id = $id;
 
@@ -152,16 +172,28 @@ abstract class Shopware6ApiConnector
         return $string->append('/'.$id)->toString();
     }
 
-    protected function index(Endpoint $endpoint, int $limit = null): BaseResponseModel {
+    protected function index(EndpointEnum $endpoint, int $limit = null): BaseResponseModel {
+        $this->auth = false;
+
         if($limit === null) {
-            $limit = $this->client->get(str($this->buildUrl($endpoint))->append('?' . Arr::query(['limit' => $limit]))->toString())->object()->total;
+            $limitRequest = $this->client->get(str($this->buildUrl($endpoint))->append('?'.Arr::query(['limit' => $limit]))->toString());
+
+            $limitResponse = $limitRequest->object();
+
+            if(!property_exists($limitResponse, 'total')) {
+                dd($endpoint, $limitResponse, $limitRequest);
+            }
+
+            $limit = $limitResponse?->total;
         }
         return $this->logger(
             $this->client->get(str($this->buildUrl($endpoint))->append('?' . Arr::query(['limit' => $limit]))->toString())
         );
     }
 
-    protected function get(Endpoint $endpoint, string $id): BaseResponseModel {
+    protected function get(EndpointEnum $endpoint, string $id): BaseResponseModel {
+        $this->auth = false;
+
         $this->id = $id;
 
         return $this->logger(
@@ -169,7 +201,7 @@ abstract class Shopware6ApiConnector
         );
     }
 
-    protected function post(Endpoint $endpoint, array $data): BaseResponseModel|AuthResponseModel {
+    protected function post(EndpointEnum $endpoint, array $data): BaseResponseModel|AuthResponseModel {
         return $this->logger(
             $this->client->post($this->buildUrl($endpoint), $data)
         );

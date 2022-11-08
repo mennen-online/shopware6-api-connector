@@ -5,7 +5,8 @@ namespace MennenOnline\Shopware6ApiConnector\Tests\Feature\Endpoints;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use MennenOnline\Shopware6ApiConnector\Endpoints\AuthenticationEndpoint;
-use MennenOnline\Shopware6ApiConnector\Enums\Endpoint;
+use MennenOnline\Shopware6ApiConnector\Endpoints\Endpoint;
+use MennenOnline\Shopware6ApiConnector\Enums\EndpointEnum;
 use MennenOnline\Shopware6ApiConnector\Models\AuthResponseModel;
 use MennenOnline\Shopware6ApiConnector\Shopware6ApiConnector;
 use MennenOnline\Shopware6ApiConnector\Tests\BaseTest;
@@ -20,29 +21,41 @@ class AuthenticationEndpointTest extends BaseTest
      * @test
      */
     public function it_returns_an_instance_of_authentication_endpoint() {
-        $this->fakeLoginResponse();
+        Http::fake([
+            '*/' . EndpointEnum::convertEndpointToUrl(EndpointEnum::OAUTH_TOKEN) => Http::response([
+                'token_type' => 'Bearer',
+                'expires_in' => 600,
+                'access_token' => 'my-access-token'
+            ])
+        ]);
 
-        $instance = Shopware6ApiConnector::Authentication();
+        $instance = new Endpoint();
 
-        $this->assertInstanceOf(AuthenticationEndpoint::class, $instance);
+        $this->assertInstanceOf(Endpoint::class, $instance);
 
-        $instance = Shopware6ApiConnector::authentication();
+        $instance = new Endpoint();
 
-        $this->assertInstanceOf(AuthenticationEndpoint::class, $instance);
+        $this->assertInstanceOf(Endpoint::class, $instance);
     }
 
     /**
      * @test
      */
     public function it_receives_a_token_with_seconds_to_expire_and_its_type() {
-        Http::fakeSequence(config('shopware6.url'))
+        Http::fakeSequence()
             ->pushResponse(Http::response([
                 'token_type' => 'Bearer',
                 'expires_in' => 600,
                 'access_token' => 'my-access-token'
-            ]));
+            ]))
+            ->pushResponse(Http::response([
+                'token_type' => 'Bearer',
+                'expires_in' => 600,
+                'access_token' => 'my-access-token'
+            ]))
+            ->dontFailWhenEmpty();
 
-        $instance = Shopware6ApiConnector::authentication();
+        $instance = new Endpoint();
 
         $response = $instance->oAuthToken();
 
