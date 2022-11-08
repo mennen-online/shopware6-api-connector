@@ -4,6 +4,7 @@ namespace MennenOnline\Shopware6ApiConnector;
 
 use ErrorException;
 use Exception;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Arr;
 use MennenOnline\Shopware6ApiConnector\Enums\Model;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Log;
 use MennenOnline\LaravelResponseModels\Models\BaseModel;
 use MennenOnline\Shopware6ApiConnector\Endpoints\AuthenticationEndpoint;
 use MennenOnline\Shopware6ApiConnector\Enums\EndpointEnum;
+use MennenOnline\Shopware6ApiConnector\Exceptions\Connector\EmptyShopware6ResponseException;
 use MennenOnline\Shopware6ApiConnector\Exceptions\Shopware6EndpointNotFoundException;
 use MennenOnline\Shopware6ApiConnector\Endpoints\Endpoint;
 use MennenOnline\Shopware6ApiConnector\Models\AuthResponseModel;
@@ -135,6 +137,11 @@ abstract class Shopware6ApiConnector
             'response' => $response->object(),
         ];
 
+        if($response->object() === null) {
+            Log::warning("The Response was Empty", $logData);
+            throw new EmptyShopware6ResponseException("The Response was Empty", $response->status());
+        }
+
         if($response->successful()) {
             if(config('app.debug')) {
                 Log::info("Shopware 6 API Call OK", $logData);
@@ -179,10 +186,6 @@ abstract class Shopware6ApiConnector
             $limitRequest = $this->client->get(str($this->buildUrl($endpoint))->append('?'.Arr::query(['limit' => $limit]))->toString());
 
             $limitResponse = $limitRequest->object();
-
-            if(!property_exists($limitResponse, 'total')) {
-                dd($endpoint, $limitResponse, $limitRequest);
-            }
 
             $limit = $limitResponse?->total;
         }

@@ -2,9 +2,11 @@
 
 namespace Feature\Endpoints;
 
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Http;
 use MennenOnline\Shopware6ApiConnector\Endpoints\Endpoint;
 use MennenOnline\Shopware6ApiConnector\Enums\EndpointEnum;
+use MennenOnline\Shopware6ApiConnector\Exceptions\Connector\EmptyShopware6ResponseException;
 use MennenOnline\Shopware6ApiConnector\Models\BaseResponseModel;
 use MennenOnline\Shopware6ApiConnector\Shopware6ApiConnector;
 use MennenOnline\Shopware6ApiConnector\Tests\BaseTest;
@@ -98,5 +100,20 @@ class EndpointTest extends BaseTest
                 $this->assertInstanceOf(BaseResponseModel::class, $response);
             }
         }
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_http_response_exception_if_response_object_is_null() {
+        Http::fake([
+            '*' => Http::response()
+        ]);
+
+        $this->expectException(EmptyShopware6ResponseException::class);
+
+        new Endpoint(
+            endpoint: EndpointEnum::OAUTH_TOKEN
+        );
     }
 }
