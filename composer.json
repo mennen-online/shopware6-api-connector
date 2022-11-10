@@ -5,7 +5,7 @@
     "require": {
         "php": "^8.1",
         "illuminate/support": "^9.17",
-        "mennen-online/laravel-response-models": "^1.1",
+        "mennen-online/laravel-response-models": "^2.0",
         "guzzlehttp/guzzle": "^7.4"
     },
 
